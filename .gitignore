@@ -6,3 +6,7 @@
 Requisitos.pdf
 .user
 Techfin.Case.slnLaunch.user
+
+# Ignora todos os arquivos appsettings de qualquer subpasta
+**/appsettings.json
+**/appsettings.*.json
