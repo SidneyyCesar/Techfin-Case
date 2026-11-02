@@ -42,8 +42,7 @@ public class AuthController : ControllerBase
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh(RefreshTokenRequest request)
     {
-        var result =
-            await _refreshHandler.HandleAsync(new RefreshTokenCommand(request.AccessToken));
+        var result = await _refreshHandler.HandleAsync(new RefreshTokenCommand(request.AccessToken));
 
         if (!result.Success)
             return Unauthorized(result);
