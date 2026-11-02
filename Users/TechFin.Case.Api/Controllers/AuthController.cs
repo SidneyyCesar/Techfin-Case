@@ -51,7 +51,7 @@ public class AuthController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("me")]
+    [HttpGet()]
     public IActionResult Me()
     {
         return Ok(new
