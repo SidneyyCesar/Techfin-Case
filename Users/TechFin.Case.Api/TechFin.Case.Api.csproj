@@ -14,5 +14,9 @@
 	  <ProjectReference Include="..\Techfin.Case.Application\Techfin.Case.Application.csproj" />
 	  <ProjectReference Include="..\Techfin.Case.Infra\Techfin.Case.Infra.csproj" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Database\" />
+	</ItemGroup>
 	
 </Project>
