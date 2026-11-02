@@ -1,4 +1,5 @@
-﻿using Techfin.Case.Application.Interfaces;
+﻿using System.Net;
+using Techfin.Case.Application.Interfaces;
 using Techfin.Case.Application.Validators;
 using Techfin.Case.Domain.Entities;
 using Techfin.Case.Domain.Repositories;
@@ -8,16 +9,14 @@ public sealed class RegisterUserHandler
 {
     private readonly IUserRepository _userRepository;
     private readonly IPasswordVerify _passwordVerify;
-    private Notifications _notification;
 
     public RegisterUserHandler(IUserRepository userRepository, IPasswordVerify passwordVerify)
     {
         _userRepository = userRepository;
         _passwordVerify = passwordVerify;
-        _notification = new Notifications();
     }
 
-    public async Task<(Guid, Notifications)> HandleAsync(RegisterUserCommand command)
+    public async Task<Result<Guid>> HandleAsync(RegisterUserCommand command)
     {
         // Validação dos dados do request usando FluentValidation
         var validator = new RegisterUserValidator();
@@ -25,8 +24,13 @@ public sealed class RegisterUserHandler
 
         if (!validationResult.IsValid)
         {
-            _notification = new Notifications(string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)));
-            return (Guid.Empty, _notification);
+            return new Result<Guid>
+            {
+                Success = false,
+                Error = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)),
+                Data = Guid.Empty,
+                StatusCode = HttpStatusCode.BadRequest
+            };
         }
 
         // Validação para evitar duplicidade de usuários com o mesmo e-mail
@@ -34,21 +38,27 @@ public sealed class RegisterUserHandler
 
         if (exists)
         {
-            _notification = new Notifications("Usuário já existente");
-            return (Guid.Empty, _notification);
+            return new Result<Guid>
+            {
+                Success = false,
+                Error = "Usuário já existente",
+                Data = Guid.Empty,
+                StatusCode = HttpStatusCode.Conflict
+            };
         }
 
         // Criação do usuário com a senha criptografada
-        string passwordHash = _passwordVerify.Hash(command.Password);
+        string passwordCripto = _passwordVerify.Hash(command.Password);
 
-        User user = new(command.Name, command.Email, passwordHash);
+        User user = new(command.Name, command.Email, passwordCripto);
 
         await _userRepository.AddAsync(user);
 
-        return (user.Id, _notification);
-    }
-    public Notifications GetNotifications()
-    {
-        return _notification;
+        return new Result<Guid>
+        {
+            Success = true,
+            Error = "Usuário cadastrado com sucesso",
+            Data = user.Id
+        };
     }
 }

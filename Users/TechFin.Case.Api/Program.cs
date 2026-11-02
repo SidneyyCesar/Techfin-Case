@@ -12,23 +12,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Users DI
+builder.Services.AddSingleton<IDbConnectionFactory, SqliteConnectionFactory>();
 
-builder.Services.AddSingleton<
-    IDbConnectionFactory,
-    SqliteConnectionFactory>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-builder.Services.AddScoped<
-    IUserRepository,
-    UserRepository>();
-
-builder.Services.AddScoped<
-    IPasswordVerify,
-    PasswordVerify>();
+builder.Services.AddScoped<IPasswordVerify, PasswordVerify>();
 
 builder.Services.AddScoped<RegisterUserHandler>();
 
 WebApplication app = builder.Build();
-
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

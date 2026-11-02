@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using Techfin.Case.Application.DTOs.Requests;
 using Techfin.Case.Application.UseCases.RegisterUser;
-using Techfin.Case.Application.Validators;
 
-namespace TechFin.Case.Auth.Controllers;
+namespace TechFin.Case.Users.Controllers;
 
 [ApiController]
 [Route("[controller]")]
@@ -21,13 +21,16 @@ public class UsersController : ControllerBase
     {
         RegisterUserCommand command = new(request.Name, request.Email, request.Password);
 
-        (Guid id, Notifications notification) = await _handler.HandleAsync(command);
+        var response = await _handler.HandleAsync(command);
 
-        if (notification.hasError)
+        if (!response.Success)
         {
-            return BadRequest(notification.messageError);
+            if (response.StatusCode == HttpStatusCode.Conflict)
+                return Conflict(response.Error);
+
+            return BadRequest(response.Error);
         }
 
-        return Created(string.Empty, new { UserId = id });
+        return Created(string.Empty, response.Data);
     }
 }
