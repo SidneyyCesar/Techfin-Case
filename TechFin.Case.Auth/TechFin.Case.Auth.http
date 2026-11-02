@@ -1,0 +1,6 @@
+@TechFin.Case.Auth_HostAddress = http://localhost:5020
+
+GET {{TechFin.Case.Auth_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

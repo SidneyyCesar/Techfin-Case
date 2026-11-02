@@ -1,0 +1,6 @@
+@Techfin.Customer_HostAddress = http://localhost:5134
+
+GET {{Techfin.Customer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
