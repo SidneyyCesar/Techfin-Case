@@ -9,11 +9,11 @@ namespace TechFin.Case.Users.Controllers;
 [Route("[controller]")]
 public class UsersController : ControllerBase
 {
-    private readonly RegisterUserHandler _handler;
+    private readonly RegisterUserHandler _userHandler;
 
-    public UsersController(RegisterUserHandler handler)
+    public UsersController(RegisterUserHandler userHandler)
     {
-        _handler = handler;
+        _userHandler = userHandler;
     }
 
     [HttpPost]
@@ -21,7 +21,7 @@ public class UsersController : ControllerBase
     {
         RegisterUserCommand command = new(request.Name, request.Email, request.Password);
 
-        var response = await _handler.HandleAsync(command);
+        var response = await _userHandler.HandleAsync(command);
 
         if (!response.Success)
         {
