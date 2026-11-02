@@ -13,6 +13,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{343EC700-5
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{929F2C19-19BD-41D0-9A74-1060A76704FA}"
+	ProjectSection(SolutionItems) = preProject
+		Users.sql = Users.sql
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TechFin.Case.Auth", "TechFin.Case.Auth\TechFin.Case.Auth.csproj", "{E7F45AE4-E1BA-4F79-AC13-5E5E6C35EC8A}"
 EndProject
