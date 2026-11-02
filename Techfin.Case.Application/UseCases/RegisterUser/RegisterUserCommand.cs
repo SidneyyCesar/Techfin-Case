@@ -1,6 +1,6 @@
 ﻿namespace Techfin.Case.Application.UseCases.RegisterUser
 {
-    public sealed record RegisterUserCommand
+    public record RegisterUserCommand
     (
         string Name,
         string Email,

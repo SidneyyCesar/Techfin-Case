@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Techfin.Case.Application.DTOs.Responses;
 
-namespace Techfin.Case.Application.DTOs.Responses
+public class LoginResponse
 {
-    internal class LoginResponse
-    {
-    }
+    public string AccessToken { get; init; } = string.Empty;
+
+    public DateTime ExpiresAt { get; init; }
 }
