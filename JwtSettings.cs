@@ -1,4 +1,4 @@
-﻿namespace Techfin.Case.Infra.Security;
+﻿using System;
 
 public class JwtSettings
 {
@@ -10,3 +10,4 @@ public class JwtSettings
 
     public int ExpirationMinutes { get; init; }
 }
+

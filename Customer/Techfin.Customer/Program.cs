@@ -5,7 +5,7 @@ using Techfin.Customer.Application.UseCases;
 using Techfin.Customer.Domain.Repositories;
 using Techfin.Customer.Infra.Data;
 using Techfin.Customer.Infra.Repository;
-using Techfin.Customer.Infra.Security;
+using Techfin.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 

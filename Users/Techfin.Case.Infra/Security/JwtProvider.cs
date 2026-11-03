@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Text;
 using Techfin.Case.Application.Interfaces;
 using Techfin.Case.Domain.Entities;
+using Techfin.Shared;
 
 namespace Techfin.Case.Infra.Security;
 

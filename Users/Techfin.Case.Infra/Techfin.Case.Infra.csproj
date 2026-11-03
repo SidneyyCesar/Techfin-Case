@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Shared\Techfin.Shared\Techfin.Shared.csproj" />
     <ProjectReference Include="..\Techfin.Case.Application\Techfin.Case.Application.csproj" />
     <ProjectReference Include="..\Techfin.Case.Domain\Techfin.Case.Domain.csproj" />
   </ItemGroup>

@@ -9,6 +9,7 @@ using Techfin.Case.Domain.Repositories;
 using Techfin.Case.Infra.Data;
 using Techfin.Case.Infra.Repositories;
 using Techfin.Case.Infra.Security;
+using Techfin.Shared;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
