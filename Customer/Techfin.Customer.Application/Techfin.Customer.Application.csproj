@@ -6,4 +6,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="12.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Shared\Techfin.Shared\Techfin.Shared.csproj" />
+    <ProjectReference Include="..\Techfin.Customer.Domain\Techfin.Customer.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

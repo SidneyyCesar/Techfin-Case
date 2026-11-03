@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Techfin.Case.Application.Validators;
+namespace Techfin.Shared;
 
 public class Result<T>
 {

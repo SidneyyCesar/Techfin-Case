@@ -63,7 +63,6 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
-
 WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.

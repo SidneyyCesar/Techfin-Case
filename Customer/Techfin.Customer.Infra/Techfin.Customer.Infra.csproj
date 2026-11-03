@@ -6,4 +6,16 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+	<ItemGroup>
+		<ProjectReference Include="..\Techfin.Customer.Domain\Techfin.Customer.Domain.csproj" />
+		<PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.14" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.14" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="10.0.14" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<PackageReference Include="Dapper" Version="2.1.89" />
+	</ItemGroup>
+
+
 </Project>

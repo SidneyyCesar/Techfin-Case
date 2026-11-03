@@ -1,11 +1,21 @@
+using Techfin.Customer.Application.UseCases;
+using Techfin.Customer.Domain.Repositories;
+using Techfin.Customer.Infra.Data;
+using Techfin.Customer.Infra.Repository;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Users DI
+builder.Services.AddSingleton<IDbConnectionFactory, SqliteConnectionFactory>();
+
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+
+builder.Services.AddScoped<CustomerHandler>();
 
 var app = builder.Build();
 
