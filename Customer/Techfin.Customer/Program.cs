@@ -1,7 +1,11 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using Techfin.Customer.Application.UseCases;
 using Techfin.Customer.Domain.Repositories;
 using Techfin.Customer.Infra.Data;
 using Techfin.Customer.Infra.Repository;
+using Techfin.Customer.Infra.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,9 +21,35 @@ builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 
 builder.Services.AddScoped<CustomerHandler>();
 
+var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()!;
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters =
+            new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+
+                ValidIssuer = jwtSettings.Issuer,
+
+                ValidAudience = jwtSettings.Audience,
+
+                IssuerSigningKey =
+                    new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(
+                            jwtSettings.SecretKey))
+            };
+    });
+
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -27,6 +57,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

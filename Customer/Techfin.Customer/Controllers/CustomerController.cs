@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using Techfin.Customer.Application;
@@ -17,6 +18,7 @@ public class ClienteController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Insert(CustomerInsertRequest request)
     {
         CustomerInsertCommand command = new(request.Name, request.CPF, request.LimitValue);
@@ -35,6 +37,7 @@ public class ClienteController : ControllerBase
     }
 
     [HttpPut]
+    [Authorize]
     public async Task<IActionResult> Update(CustomerUpdateCommand request)
     {
         CustomerUpdateCommand command = new(request.Id, request.Name, request.CPF, request.LimitValue);
@@ -48,6 +51,7 @@ public class ClienteController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
+    [Authorize]
     public async Task<IActionResult> GetById(Guid Id)
     {
         var response = await _customerHandler.GetByIdAsync(Id);
@@ -64,6 +68,7 @@ public class ClienteController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> List()
     {
         var response = await _customerHandler.ListAsync();
@@ -75,6 +80,7 @@ public class ClienteController : ControllerBase
     }
 
     [HttpDelete]
+    [Authorize]
     public async Task<IActionResult> Delete(string Id)
     {
         var response = await _customerHandler.DeleteAsync(Id);

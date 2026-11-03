@@ -34,10 +34,7 @@ builder.Services.AddScoped<LoginUserHandler>();
 builder.Services.AddScoped<RefreshTokenHandler>();
 
 
-var jwtSettings =
-    builder.Configuration
-        .GetSection("JwtSettings")
-        .Get<JwtSettings>()!;
+var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()!;
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
