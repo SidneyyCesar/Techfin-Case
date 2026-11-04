@@ -16,7 +16,6 @@ public sealed class AuthUserHandler(IUserRepository repository, IPasswordVerify 
 
     public async Task<Result<LoginResponse>> HandleAsync(AuthUserCommand command)
     {
-        // Validação dos dados do request usando FluentValidation
         var validator = new LoginRequestValidator();
         var validationResult = await validator!.ValidateAsync(command);
 

@@ -8,14 +8,18 @@ using Techfin.Transaction.Infra;
 
 namespace Techfin.Transaction.Application.Messaging;
 
-public sealed class CreateTransactionHandler(ITransactionRepository repository, IMessagePublisher publisher)
+public sealed class CreateTransactionHandler(ITransactionRepository repository, IMessagePublisher publisher, HttpClient httpClient)
 {
     private readonly ITransactionRepository _repository = repository;
     private readonly IMessagePublisher _publisher = publisher;
+    private readonly HttpClient _httpClient = httpClient;
 
+    /// <summary>
+    /// A criação de uma transação funciona de maneira atomica, ou seja, se algum dos serviços estiver indisponível, a transação não será criada.
+    /// </summary>
+    /// <param name="command">dados da transação</param>
     public async Task<Result<CreateTransactionResponse>> HandleAsync(CreateTransactionCommand command)
     {
-        // Validação completa da requisição, dados, disponibilidade dos serviços e idempotência
         var validation = await RequestValidation(command);
 
         if (!validation.Success)
@@ -23,10 +27,8 @@ public sealed class CreateTransactionHandler(ITransactionRepository repository, 
 
         var transaction = new Domain.Transaction(command.CustomerId, command.Amount, command.TransactionKey);
 
-        // Persistencia da transação
         await _repository.AddAsync(transaction);
 
-        // Publicação do evento na fila
         await _publisher.PublishAsync(
             new TransactionCreatedEvent
             {
@@ -49,6 +51,8 @@ public sealed class CreateTransactionHandler(ITransactionRepository repository, 
             }
         };
     }
+
+    #region Validação de Requisição
 
     private async Task<Result<CreateTransactionResponse>> RequestValidation(CreateTransactionCommand command)
     {
@@ -108,12 +112,11 @@ public sealed class CreateTransactionHandler(ITransactionRepository repository, 
         return new Result<CreateTransactionResponse>() { Success = true };
     }
 
-    private static async Task<Result<CustomerResponse>> RequestCustomerApiAsync(CreateTransactionCommand command)
+    private async Task<Result<CustomerResponse>> RequestCustomerApiAsync(CreateTransactionCommand command)
     {
-        var httpClient = new HttpClient();
-        httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {command.Token}");
+        _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {command.Token}");
 
-        var response = await httpClient.GetAsync($"https://localhost:4000/clientes/{command.CustomerId}");
+        var response = await _httpClient.GetAsync($"https://localhost:4000/clientes/{command.CustomerId}");
 
         if (response.IsSuccessStatusCode)
         {
@@ -122,10 +125,7 @@ public sealed class CreateTransactionHandler(ITransactionRepository repository, 
             using JsonDocument doc = JsonDocument.Parse(jsonResponse);
             JsonElement dataElement = doc.RootElement.GetProperty("data");
 
-            var customer = JsonSerializer.Deserialize<CustomerResponse>(dataElement.GetRawText(), new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
+            var customer = JsonSerializer.Deserialize<CustomerResponse>(dataElement.GetRawText());
 
             if (customer != null)
             {
@@ -151,4 +151,6 @@ public sealed class CreateTransactionHandler(ITransactionRepository repository, 
         };
 
     }
+
+    #endregion
 }
