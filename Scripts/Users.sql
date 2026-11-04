@@ -6,5 +6,5 @@ CREATE TABLE Users
     Name TEXT NOT NULL,
     Email TEXT NOT NULL UNIQUE,
     Password TEXT NOT NULL,
-    CreatedAt TEXT NOT NULL
+    CreatedAt DATE NOT NULL
 );

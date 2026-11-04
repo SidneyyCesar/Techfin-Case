@@ -4,5 +4,5 @@ CREATE TABLE IF NOT EXISTS Customers
     Name TEXT NOT NULL,
     CPF TEXT NOT NULL UNIQUE,
     LimitValue REAL NOT NULL,
-    CreatedAt DATE NOT NULL,
-;
+    CreatedAt DATE NOT NULL
+);
