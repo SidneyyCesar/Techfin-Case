@@ -3,35 +3,28 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Security.Claims;
 using Techfin.Case.Application.DTOs.Requests;
-using Techfin.Case.Application.UseCases.LoginUser;
+using Techfin.Case.Application.UseCases.Authentication;
 using Techfin.Case.Application.UseCases.RefreshToken;
 
-namespace TechFin.Case.Users.Controllers;
+namespace TechFin.Case.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class AuthController : ControllerBase
+public class AutenticacaoController(AuthUserHandler handler) : ControllerBase
 {
-    private readonly LoginUserHandler _loginHandler;
-    private readonly RefreshTokenHandler _refreshHandler;
-
-    public AuthController(LoginUserHandler loginHandler, RefreshTokenHandler refreshHandler)
-    {
-        _loginHandler = loginHandler;
-        _refreshHandler = refreshHandler;
-    }
+    private readonly AuthUserHandler _handler = handler;
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest request)
     {
-        var command = new LoginUserCommand(request.Email, request.Password);
+        var command = new AuthUserCommand(request.Email, request.Password);
 
-        var result = await _loginHandler.HandleAsync(command);
+        var result = await _handler.HandleAsync(command);
 
         if (!result.Success)
         {
             if (result.StatusCode == HttpStatusCode.Unauthorized)
-                return Unauthorized(result.Error);
+                return Unauthorized(result.Message);
 
             return BadRequest(result);
         }
@@ -42,7 +35,7 @@ public class AuthController : ControllerBase
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh(RefreshTokenRequest request)
     {
-        var result = await _refreshHandler.HandleAsync(new RefreshTokenCommand(request.AccessToken));
+        var result = await _handler.RefreshTokenAsync(new RefreshTokenCommand(request.AccessToken));
 
         if (!result.Success)
             return Unauthorized(result);
@@ -51,7 +44,7 @@ public class AuthController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet()]
+    [HttpGet("v")]
     public IActionResult Me()
     {
         return Ok(new

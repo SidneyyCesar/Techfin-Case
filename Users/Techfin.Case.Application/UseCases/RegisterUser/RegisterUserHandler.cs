@@ -6,16 +6,11 @@ using Techfin.Case.Domain.Repositories;
 using Techfin.Shared;
 
 namespace Techfin.Case.Application.UseCases.RegisterUser;
-public sealed class RegisterUserHandler
+public sealed class RegisterUserHandler(IUserRepository userRepository, IPasswordVerify passwordVerify)
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IPasswordVerify _passwordVerify;
+    private readonly IUserRepository _userRepository = userRepository;
+    private readonly IPasswordVerify _passwordVerify = passwordVerify;
 
-    public RegisterUserHandler(IUserRepository userRepository, IPasswordVerify passwordVerify)
-    {
-        _userRepository = userRepository;
-        _passwordVerify = passwordVerify;
-    }
     public async Task<Result<Guid>> HandleAsync(RegisterUserCommand command)
     {
         // Validação dos dados do request usando FluentValidation
@@ -27,7 +22,7 @@ public sealed class RegisterUserHandler
             return new Result<Guid>
             {
                 Success = false,
-                Error = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)),
+                Message = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)),
                 Data = Guid.Empty,
                 StatusCode = HttpStatusCode.BadRequest
             };
@@ -41,7 +36,7 @@ public sealed class RegisterUserHandler
             return new Result<Guid>
             {
                 Success = false,
-                Error = "Usuário já existente",
+                Message = "Usuário já existente",
                 Data = Guid.Empty,
                 StatusCode = HttpStatusCode.Conflict
             };
@@ -54,7 +49,7 @@ public sealed class RegisterUserHandler
                             command.Name,
                             command.Email,
                             passwordCripto,
-                            DateTime.UtcNow);
+                            DateTime.Now);
 
         await _userRepository.AddAsync(user);
 
@@ -62,7 +57,7 @@ public sealed class RegisterUserHandler
         {
             Success = true,
             StatusCode = HttpStatusCode.OK,
-            Error = "Usuário cadastrado com sucesso",
+            Message = "Usuário cadastrado com sucesso",
             Data = user.Id
         };
     }

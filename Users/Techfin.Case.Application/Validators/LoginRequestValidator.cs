@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
-using Techfin.Case.Application.UseCases.LoginUser;
+using Techfin.Case.Application.UseCases.Authentication;
 
 namespace Techfin.Case.Application.Validators;
-public sealed class LoginRequestValidator : AbstractValidator<LoginUserCommand>
+public sealed class LoginRequestValidator : AbstractValidator<AuthUserCommand>
 {
     public LoginRequestValidator()
     {

@@ -3,8 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
 using Techfin.Case.Application.Interfaces;
-using Techfin.Case.Application.UseCases.LoginUser;
-using Techfin.Case.Application.UseCases.RefreshToken;
+using Techfin.Case.Application.UseCases.Authentication;
 using Techfin.Case.Application.UseCases.RegisterUser;
 using Techfin.Case.Domain.Repositories;
 using Techfin.Case.Infra.Data;
@@ -18,7 +17,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Users DI
 builder.Services.AddSingleton<IDbConnectionFactory, SqlLiteConnectionFactory>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -37,9 +35,7 @@ builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSet
 
 builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 
-builder.Services.AddScoped<LoginUserHandler>();
-builder.Services.AddScoped<RefreshTokenHandler>();
-
+builder.Services.AddScoped<AuthUserHandler>();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()!;
 
@@ -72,10 +68,7 @@ WebApplication app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.RoutePrefix = "swagger";
-    });
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();

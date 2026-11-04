@@ -5,18 +5,12 @@ using System.Security.Claims;
 using System.Text;
 using Techfin.Case.Application.Interfaces;
 using Techfin.Case.Domain.Entities;
-using Techfin.Shared;
 
 namespace Techfin.Case.Infra.Security;
 
-public sealed class JwtProvider : IJwtProvider
+public sealed class JwtProvider(IOptions<JwtSettings> options) : IJwtProvider
 {
-    private readonly JwtSettings _settings;
-
-    public JwtProvider(IOptions<JwtSettings> options)
-    {
-        _settings = options.Value;
-    }
+    private readonly JwtSettings _settings = options.Value;
 
     public string GenerateToken(User user)
     {
