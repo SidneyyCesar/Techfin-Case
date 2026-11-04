@@ -1,33 +1,37 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using Techfin.Transaction.Application.DTOs;
 using Techfin.Transaction.Application.Messaging;
 
-namespace Techfin.Transaction.Controllers
+namespace Techfin.Transaction.Controllers;
+
+[Authorize]
+[ApiController]
+[Route("[controller]")]
+public class TransactionController : ControllerBase
 {
-    [Authorize]
-    [ApiController]
-    [Route("[controller]")]
-    public class TransactionController : ControllerBase
+    private readonly CreateTransactionHandler _handler;
+
+    public TransactionController(CreateTransactionHandler handler)
     {
-        private readonly CreateTransactionHandler _handler;
+        _handler = handler;
+    }
 
-        public TransactionController(CreateTransactionHandler handler)
+    [HttpPost]
+    public async Task<IActionResult> Create([FromHeader(Name = "request-Key")] string requestId, CreateTransactionRequest request)
+    {
+        var command = new CreateTransactionCommand(request.CustomerId, request.Amount, requestId);
+
+        var result = await _handler.HandleAsync(command);
+
+        if (!result.Success)
         {
-            _handler = handler;
+            if (result.StatusCode == HttpStatusCode.Accepted)
+                return Accepted(result);
+
+            return BadRequest(result);
         }
-
-        [HttpPost]
-        public async Task<IActionResult> Create(CreateTransactionRequest request)
-        {
-            var command = new CreateTransactionCommand(request.CustomerId, request.Amount);
-
-            var result = await _handler.HandleAsync(command);
-
-            if (!result.Success)
-                return BadRequest(result);
-
-            return Created(string.Empty, result.Data);
-        }
+        return Created(string.Empty, result);
     }
 }

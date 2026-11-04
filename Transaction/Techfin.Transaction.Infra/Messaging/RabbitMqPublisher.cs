@@ -14,7 +14,6 @@ public sealed class RabbitMqPublisher : IMessagePublisher
     {
         _settings = options.Value;
     }
-
     public Task PublishAsync<T>(T message)
     {
         var factory = new ConnectionFactory { HostName = _settings.HostName };
@@ -35,9 +34,23 @@ public sealed class RabbitMqPublisher : IMessagePublisher
             routingKey: "",
             body: body);
 
-        channel.QueueDeclare(queue: "transactions", durable: true, exclusive: false, autoDelete: false,
-    arguments: new Dictionary<string, object?> { { "x-queue-type", "quorum" } });
+        channel.QueueDeclare(queue: _settings.Queue, durable: true, exclusive: false, autoDelete: false);
 
         return Task.CompletedTask;
+    }
+    public Task<bool> IsAvailableAsync()
+    {
+        try
+        {
+            var factory = new ConnectionFactory { HostName = _settings.HostName };
+
+            using var connection = factory.CreateConnection();
+
+            return Task.FromResult(true);
+        }
+        catch
+        {
+            return Task.FromResult(false);
+        }
     }
 }

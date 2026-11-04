@@ -2,8 +2,6 @@
 public interface ITransactionRepository
 {
     Task AddAsync(Transaction transaction);
-
-    Task<Transaction?> GetByIdAsync(Guid id);
-
-    Task<IEnumerable<Transaction>> GetAllAsync();
+    Task<Transaction?> GetByRequestIdAsync(string requestId);
+    Task<bool> IsAvailableAsync();
 }
