@@ -1,4 +1,5 @@
-﻿namespace Techfin.Shared;
+﻿using System;
+
 public class JwtSettings
 {
     public string SecretKey { get; init; } = string.Empty;
