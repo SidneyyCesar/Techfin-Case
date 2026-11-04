@@ -62,6 +62,22 @@ public sealed class TransactionRepository : ITransactionRepository
             : Map(result);
     }
 
+    public async Task<bool> IsAvailableAsync()
+    {
+        try
+        {
+            using var _connection = _factory.CreateConnection();
+
+            await _connection.ExecuteScalarAsync<int>("SELECT 1 FROM Transactions");
+
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     private static Domain.Transaction Map(TransactionSqlModel model)
     {
         return new Domain.Transaction(Guid.Parse(model.CustomerId), model.Amount, model.RequestId)

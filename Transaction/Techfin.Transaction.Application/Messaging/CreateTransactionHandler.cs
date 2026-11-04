@@ -19,40 +19,11 @@ public sealed class CreateTransactionHandler
 
     public async Task<Result<CreateTransactionResponse>> HandleAsync(CreateTransactionCommand command)
     {
-        if (command.CustomerId == Guid.Empty)
-            return new Result<CreateTransactionResponse>()
-            {
-                StatusCode = HttpStatusCode.BadRequest,
-                Error = "Cliente vinculado a transação não é válido."
-            };
+        // Validação completa da requisição, dados, disponibilidade dos serviços e idempotência
+        var validation = await _RequestValidation(command);
 
-        if (string.IsNullOrEmpty(command.RequestId))
-            return new Result<CreateTransactionResponse>()
-            {
-                StatusCode = HttpStatusCode.BadRequest,
-                Error = "Identificador da transação não informado"
-            };
-
-        if (command.Amount < 0)
-            return new Result<CreateTransactionResponse>()
-            {
-                StatusCode = HttpStatusCode.BadRequest,
-                Error = "O valor da transação não pode ser negativo."
-            };
-
-        // Verificação se já existe uma transação com o mesmo IdempotencyKey
-        var existing = await _repository.GetByRequestIdAsync(command.RequestId);
-
-        if (existing is not null)
-            return new Result<CreateTransactionResponse>()
-            {
-                StatusCode = HttpStatusCode.Accepted,
-                Error = $"A Transação {command.RequestId} já foi executada e esta em processamento."
-            };
-
-        // IMPORTANTE
-        // A validação do cliente vinculado a transação poderia ser feita aqui via uma chamada HTTP na api de clientes por exemplo
-        // Estou omitindo esta validação por simplicidade no case
+        if (!validation.Success)
+            return validation;
 
         var transaction = new Domain.Transaction(command.CustomerId, command.Amount, command.RequestId);
 
@@ -79,6 +50,60 @@ public sealed class CreateTransactionHandler
                 RequestId = command.RequestId,
                 TransactionDate = transaction.CreatedAt
             }
+        };
+    }
+
+    private async Task<Result<CreateTransactionResponse>> _RequestValidation(CreateTransactionCommand command)
+    {
+        if (command.CustomerId == Guid.Empty)
+            return new Result<CreateTransactionResponse>()
+            {
+                StatusCode = HttpStatusCode.BadRequest,
+                Error = "Cliente vinculado a transação não é válido."
+            };
+
+        if (string.IsNullOrEmpty(command.RequestId))
+            return new Result<CreateTransactionResponse>()
+            {
+                StatusCode = HttpStatusCode.BadRequest,
+                Error = "Identificador da transação não informado"
+            };
+
+        if (command.Amount < 0)
+            return new Result<CreateTransactionResponse>()
+            {
+                StatusCode = HttpStatusCode.BadRequest,
+                Error = "O valor da transação não pode ser negativo."
+            };
+
+        bool rabbitIsAvaliable = await _publisher.IsAvailableAsync();
+        bool sqlLiteIsAvaliable = await _repository.IsAvailableAsync();
+
+        if (!rabbitIsAvaliable || !sqlLiteIsAvaliable)
+        {
+            return new Result<CreateTransactionResponse>()
+            {
+                StatusCode = HttpStatusCode.ServiceUnavailable,
+                Error = $"Serviço indisponível no momento, tente novamente mais tarde."
+            };
+        }
+
+        var existing = await _repository.GetByRequestIdAsync(command.RequestId);
+        if (existing is not null)
+            return new Result<CreateTransactionResponse>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = $"A Transação {command.RequestId} já foi executada e esta em processamento."
+            };
+
+
+        // IMPORTANTE
+        // A validação do cliente vinculado a transação poderia ser feita aqui via uma chamada HTTP na api de clientes por exemplo
+        // Estou omitindo esta validação por simplicidade no case
+
+        return new Result<CreateTransactionResponse>()
+        {
+            Success = true
         };
     }
 }
