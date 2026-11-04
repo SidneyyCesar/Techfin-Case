@@ -31,6 +31,6 @@ public class UsersController : ControllerBase
             return BadRequest(response.Error);
         }
 
-        return Created(string.Empty, response.Data);
+        return Created(string.Empty, response);
     }
 }

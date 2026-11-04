@@ -3,6 +3,7 @@ using Techfin.Case.Application.Interfaces;
 using Techfin.Case.Application.Validators;
 using Techfin.Case.Domain.Entities;
 using Techfin.Case.Domain.Repositories;
+using Techfin.Shared;
 
 namespace Techfin.Case.Application.UseCases.RegisterUser;
 public sealed class RegisterUserHandler
@@ -15,7 +16,6 @@ public sealed class RegisterUserHandler
         _userRepository = userRepository;
         _passwordVerify = passwordVerify;
     }
-
     public async Task<Result<Guid>> HandleAsync(RegisterUserCommand command)
     {
         // Validação dos dados do request usando FluentValidation
@@ -50,13 +50,18 @@ public sealed class RegisterUserHandler
         // Criação do usuário com a senha criptografada
         string passwordCripto = _passwordVerify.Hash(command.Password);
 
-        User user = new(command.Name, command.Email, passwordCripto);
+        var user = new User(Guid.NewGuid(),
+                            command.Name,
+                            command.Email,
+                            passwordCripto,
+                            DateTime.UtcNow);
 
         await _userRepository.AddAsync(user);
 
         return new Result<Guid>
         {
             Success = true,
+            StatusCode = HttpStatusCode.OK,
             Error = "Usuário cadastrado com sucesso",
             Data = user.Id
         };

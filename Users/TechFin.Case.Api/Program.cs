@@ -9,6 +9,7 @@ using Techfin.Case.Domain.Repositories;
 using Techfin.Case.Infra.Data;
 using Techfin.Case.Infra.Repositories;
 using Techfin.Case.Infra.Security;
+using Techfin.Shared;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +19,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Users DI
-builder.Services.AddSingleton<IDbConnectionFactory, SqliteConnectionFactory>();
+builder.Services.AddSingleton<IDbConnectionFactory, SqlLiteConnectionFactory>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
@@ -34,10 +35,7 @@ builder.Services.AddScoped<LoginUserHandler>();
 builder.Services.AddScoped<RefreshTokenHandler>();
 
 
-var jwtSettings =
-    builder.Configuration
-        .GetSection("JwtSettings")
-        .Get<JwtSettings>()!;
+var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()!;
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -62,7 +60,6 @@ builder.Services
     });
 
 builder.Services.AddAuthorization();
-
 
 WebApplication app = builder.Build();
 
