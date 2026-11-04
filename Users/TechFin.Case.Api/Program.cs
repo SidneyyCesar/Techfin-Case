@@ -9,7 +9,6 @@ using Techfin.Case.Domain.Repositories;
 using Techfin.Case.Infra.Data;
 using Techfin.Case.Infra.Repositories;
 using Techfin.Case.Infra.Security;
-using Techfin.Shared;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -63,11 +62,13 @@ builder.Services.AddAuthorization();
 
 WebApplication app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    _ = app.UseSwagger();
-    _ = app.UseSwaggerUI();
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.RoutePrefix = "swagger";
+    });
 }
 
 app.UseHttpsRedirection();
