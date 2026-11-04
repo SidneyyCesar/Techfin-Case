@@ -7,7 +7,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{929F2C19-19BD-41D0-9A74-1060A76704FA}"
 	ProjectSection(SolutionItems) = preProject
-		Users.sql = Users.sql
+		Scripts\Customers.sql = Scripts\Customers.sql
+		Scripts\Transactions.sql = Scripts\Transactions.sql
+		Scripts\Users.sql = Scripts\Users.sql
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Auth", "Auth", "{823ABEBB-1739-4FCF-BB09-3B8B4A6A5826}"
@@ -137,6 +139,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{929F2C19-19BD-41D0-9A74-1060A76704FA} = {6BF5010B-6C28-4139-861B-262283061176}
 		{823ABEBB-1739-4FCF-BB09-3B8B4A6A5826} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{9657804A-947B-4A14-B3C4-34992BA3FAC8} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{866049F3-7358-4B38-A2F1-C06F4221AB8C} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
