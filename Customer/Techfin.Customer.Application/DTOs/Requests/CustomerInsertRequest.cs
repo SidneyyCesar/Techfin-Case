@@ -2,7 +2,7 @@
 
 public class CustomerInsertRequest
 {
-    public string Name { get; set; } = default!;
+    public string Nome { get; set; } = default!;
     public string CPF { get; set; } = default!;
-    public decimal LimitValue { get; set; } = default!;
+    public decimal ValorLimite { get; set; } = default!;
 }

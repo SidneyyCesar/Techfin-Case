@@ -3,9 +3,9 @@
     public class CustomerResponse
     {
         public Guid Id { get; set; }
-        public string Name { get; init; } = string.Empty;
+        public string Nome { get; init; } = string.Empty;
         public string CPF { get; set; } = string.Empty;
-        public decimal LimitValue { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public decimal ValorLimite { get; set; }
+        public DateTime DataCriacao { get; set; }
     }
 }

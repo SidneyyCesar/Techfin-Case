@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
-using Techfin.Customer.Application.UseCases;
+using Techfin.Customer.Application.Interfaces;
+using Techfin.Customer.Application.Services;
 using Techfin.Customer.Domain.Repositories;
 using Techfin.Customer.Infra.Data;
 using Techfin.Customer.Infra.Messaging;
@@ -15,13 +16,15 @@ builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddMemoryCache();
 
 // Customer DI
 builder.Services.AddSingleton<IDbConnectionFactory, SqliteConnectionFactory>();
 
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<IEventsRepository, EventsRepository>();
 
-builder.Services.AddScoped<CustomerHandler>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 
 builder.Services.Configure<RabbitMqSettings>(builder.Configuration.GetSection("RabbitMqSettings"));
 
@@ -56,7 +59,7 @@ builder.Services
             };
     });
 
-builder.Services.AddHostedService<TransactionCreatedConsumer>();
+builder.Services.AddHostedService<TransactionConsumer>();
 
 builder.Services.AddAuthorization();
 
@@ -65,10 +68,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.RoutePrefix = "swagger";
-    });
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
