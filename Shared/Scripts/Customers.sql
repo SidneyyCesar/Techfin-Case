@@ -3,6 +3,6 @@ CREATE TABLE IF NOT EXISTS Customers
     Id TEXT PRIMARY KEY,
     Name TEXT NOT NULL,
     CPF TEXT NOT NULL UNIQUE,
-    LimitValue REAL NOT NULL,
+    LimitValue NUMERIC(18,2) NOT NULL,
     CreatedAt DATE NOT NULL
 );

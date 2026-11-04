@@ -17,10 +17,10 @@ public class Customer
         CreatedAt = createdAt;
     }
 
-    public void DebitLimit(decimal limitValue)
-    {
-        LimitValue = limitValue;
-    }
+    //public void DebitLimit(decimal limitValue, decimal Amount)
+    //{
+    //    LimitValue = limitValue - Amount;
+    //}
 
     public Guid Id { get; private set; }
     public string Name { get; private set; }

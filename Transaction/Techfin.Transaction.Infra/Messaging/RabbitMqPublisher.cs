@@ -22,17 +22,11 @@ public sealed class RabbitMqPublisher : IMessagePublisher
 
         using var channel = connection.CreateModel();
 
-        channel.ExchangeDeclare(
-            exchange: _settings.Exchange,
-            type: ExchangeType.Fanout,
-            durable: true);
+        channel.ExchangeDeclare(exchange: _settings.Exchange, type: ExchangeType.Fanout, durable: true);
 
         var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
 
-        channel.BasicPublish(
-            exchange: _settings.Exchange,
-            routingKey: "",
-            body: body);
+        channel.BasicPublish(exchange: _settings.Exchange, routingKey: "", body: body);
 
         channel.QueueDeclare(queue: _settings.Queue, durable: true, exclusive: false, autoDelete: false);
 

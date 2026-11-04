@@ -8,7 +8,7 @@ public interface ICustomerRepository
 
     Task AddAsync(Customer customer);
 
-    Task UpdateAsync(Customer customer);
+    Task UpdateAsync(Customer customer, decimal AmountDebit = 0);
 
     Task DeleteAsync(string Id);
 

@@ -13,6 +13,6 @@ public class Transaction
         CustomerId = customerId;
         Amount = amount;
         RequestId = requestId;
-        CreatedAt = DateTime.UtcNow;
+        CreatedAt =DateTime.Now;
     }
 }

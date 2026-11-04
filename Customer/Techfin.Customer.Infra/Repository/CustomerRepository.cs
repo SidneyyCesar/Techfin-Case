@@ -5,14 +5,9 @@ using Techfin.Customer.Infra.Models;
 
 namespace Techfin.Customer.Infra.Repository;
 
-public class CustomerRepository : ICustomerRepository
+public class CustomerRepository(IDbConnectionFactory factory) : ICustomerRepository
 {
-    private readonly IDbConnectionFactory _factory;
-
-    public CustomerRepository(IDbConnectionFactory factory)
-    {
-        _factory = factory;
-    }
+    private readonly IDbConnectionFactory _factory = factory;
 
     public async Task<IEnumerable<Domain.Customer>> GetListAsync()
     {
@@ -33,7 +28,7 @@ public class CustomerRepository : ICustomerRepository
 
         const string sql = @" SELECT *
                                 FROM Customers
-                                WHERE Id = @Id";
+                                WHERE Upper(Id) = @Id";
 
         var result = await connection.QueryFirstOrDefaultAsync<CustomerSqlModel>(sql, new { Id = id.ToString().ToUpper() });
 
@@ -72,15 +67,14 @@ public class CustomerRepository : ICustomerRepository
             });
     }
 
-    public async Task UpdateAsync(Domain.Customer customer)
+    public async Task UpdateAsync(Domain.Customer customer, decimal AmountDebit = 0)
     {
         using var connection = _factory.CreateConnection();
-
         const string sql = @" UPDATE Customers
                             SET
                                 Name = @Name,
                                 CPF = @CPF,
-                                LimitValue = @LimitValue
+                                LimitValue = @LimitValue - @AmountDebit
                             WHERE Id = @Id";
 
         await connection.ExecuteAsync(
@@ -90,7 +84,8 @@ public class CustomerRepository : ICustomerRepository
                 customer.Id,
                 customer.Name,
                 customer.CPF,
-                customer.LimitValue
+                customer.LimitValue,
+                AmountDebit
             });
     }
     public async Task<Domain.Customer?> GetByCpfAsync(string CPF)

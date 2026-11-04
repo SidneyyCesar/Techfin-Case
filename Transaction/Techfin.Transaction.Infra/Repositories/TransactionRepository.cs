@@ -23,7 +23,8 @@ public sealed class TransactionRepository : ITransactionRepository
                                 RequestId,
                                 CustomerId,
                                 Amount,
-                                CreatedAt
+                                CreatedAt,
+                                Status
                             )
                             VALUES
                             (
@@ -31,7 +32,8 @@ public sealed class TransactionRepository : ITransactionRepository
                                 @RequestId,                         
                                 @CustomerId,
                                 @Amount,
-                                @CreatedAt
+                                @CreatedAt,
+                                'Aprovado.'       
                             )
                             ";
 
