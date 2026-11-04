@@ -1,28 +1,18 @@
 ﻿namespace Techfin.Transaction.Domain;
-
-public sealed class Transaction
+public class Transaction
 {
-    public Guid Id { get; private set; }
-
-    public Guid CustomerId { get; private set; }
-
+    public Guid Id { get; set; }
+    public string RequestId { get; private set; }
     public decimal Amount { get; private set; }
+    public Guid CustomerId { get; set; }
+    public DateTime CreatedAt { get; set; }
 
-    public DateTime CreatedAt { get; private set; }
-
-    public Transaction(Guid customerId, decimal amount)
+    public Transaction(Guid customerId, decimal amount, string requestId)
     {
         Id = Guid.NewGuid();
         CustomerId = customerId;
         Amount = amount;
+        RequestId = requestId;
         CreatedAt = DateTime.UtcNow;
-    }
-    public static Transaction Load(Guid Id, Guid customerId, decimal amount, DateTime? createdAt)
-    {
-        return new Transaction(customerId, amount)
-        {
-            Id = Id,
-            CreatedAt = createdAt ?? DateTime.UtcNow
-        };
     }
 }

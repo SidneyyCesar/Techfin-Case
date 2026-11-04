@@ -20,6 +20,7 @@ public sealed class TransactionRepository : ITransactionRepository
         const string sql = @"INSERT INTO Transactions
                             (
                                 Id,
+                                RequestId,
                                 CustomerId,
                                 Amount,
                                 CreatedAt
@@ -27,6 +28,7 @@ public sealed class TransactionRepository : ITransactionRepository
                             VALUES
                             (
                                 @Id,
+                                @RequestId,                         
                                 @CustomerId,
                                 @Amount,
                                 @CreatedAt
@@ -38,46 +40,34 @@ public sealed class TransactionRepository : ITransactionRepository
             new
             {
                 transaction.Id,
+                transaction.RequestId,
                 transaction.CustomerId,
                 transaction.Amount,
                 transaction.CreatedAt
             });
     }
 
-    public async Task<Domain.Transaction?> GetByIdAsync(Guid id)
+    public async Task<Domain.Transaction?> GetByRequestIdAsync(string requestId)
     {
         using var connection = _factory.CreateConnection();
 
         const string sql = @"SELECT *
                             FROM Transactions
-                            WHERE Id = @Id";
+                            WHERE RequestId = @RequestId";
 
-        var result = await connection.QueryFirstOrDefaultAsync<TransactionSqlModel>(sql, new { Id = id.ToString().ToUpper() });
+        var result = await connection.QueryFirstOrDefaultAsync<TransactionSqlModel>(sql, new { RequestId = requestId });
 
         return result is null
             ? null
             : Map(result);
     }
 
-    public async Task<IEnumerable<Domain.Transaction>> GetAllAsync()
-    {
-        using var connection = _factory.CreateConnection();
-
-        const string sql = @"SELECT *
-                                FROM Transactions
-                                ORDER BY CreatedAt DESC";
-
-        var result = await connection.QueryAsync<TransactionSqlModel>(sql);
-
-        return result.Select(Map);
-    }
-
     private static Domain.Transaction Map(TransactionSqlModel model)
     {
-        return Domain.Transaction.Load(
-            model.Id,
-            model.CustomerId,
-            model.Amount,
-            model.CreatedAt);
+        return new Domain.Transaction(Guid.Parse(model.CustomerId), model.Amount, model.RequestId)
+        {
+            Id = Guid.Parse(model.Id),
+            CreatedAt = model.CreatedAt
+        };
     }
 }
