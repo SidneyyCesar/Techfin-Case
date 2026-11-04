@@ -19,7 +19,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Users DI
-builder.Services.AddSingleton<IDbConnectionFactory, SqliteConnectionFactory>();
+builder.Services.AddSingleton<IDbConnectionFactory, SqlLiteConnectionFactory>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 

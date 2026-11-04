@@ -3,11 +3,11 @@ using Microsoft.Extensions.Configuration;
 using System.Data;
 
 namespace Techfin.Case.Infra.Data;
-public sealed class SqliteConnectionFactory : IDbConnectionFactory
+public sealed class SqlLiteConnectionFactory : IDbConnectionFactory
 {
     private readonly string _connectionString;
 
-    public SqliteConnectionFactory(IConfiguration configuration)
+    public SqlLiteConnectionFactory(IConfiguration configuration)
     {
         _connectionString =
             configuration.GetConnectionString("UsersDb")
