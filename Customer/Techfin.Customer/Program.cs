@@ -4,6 +4,7 @@ using System.Text;
 using Techfin.Customer.Application.UseCases;
 using Techfin.Customer.Domain.Repositories;
 using Techfin.Customer.Infra.Data;
+using Techfin.Customer.Infra.Messaging;
 using Techfin.Customer.Infra.Repository;
 using Techfin.Shared;
 
@@ -14,12 +15,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Users DI
+// Customer DI
 builder.Services.AddSingleton<IDbConnectionFactory, SqliteConnectionFactory>();
 
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 
 builder.Services.AddScoped<CustomerHandler>();
+
+builder.Services.Configure<RabbitMqSettings>(builder.Configuration.GetSection("RabbitMqSettings"));
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()!;
 
@@ -45,6 +48,8 @@ builder.Services
                             jwtSettings.SecretKey))
             };
     });
+
+builder.Services.AddHostedService<TransactionCreatedConsumer>();
 
 builder.Services.AddAuthorization();
 
