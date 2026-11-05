@@ -12,6 +12,11 @@ using Techfin.Shared;
 
 namespace Techfin.Customer.Infra.Messaging;
 
+/// <summary>
+/// Classe responsável pela escuta de eventos de transações criadas, realizando o devido débito na conta do cliente e registrando o evento processado.
+/// </summary>
+/// <param name="serviceProvider">Como o background service roda como um singleton, as dependencias serão obtidas através do service provider</param>
+/// <param name="options">acesso as configurações do RabbitMQ</param>
 public sealed class TransactionConsumer(IServiceProvider serviceProvider, IOptions<RabbitMqSettings> options) : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider = serviceProvider;

@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using System.Globalization;
 using Techfin.Customer.Domain.Repositories;
 using Techfin.Customer.Infra.Data;
 using Techfin.Customer.Infra.Models;
@@ -13,8 +14,12 @@ public class CustomerRepository(IDbConnectionFactory factory) : ICustomerReposit
     {
         using var connection = _factory.CreateConnection();
 
-        const string sql = @"SELECT *
-                                FROM Customers
+        const string sql = @"SELECT Id,
+                                    Name,
+                                    CPF,
+                                    CAST(LimitValue AS REAL) AS LimitValue,
+                                    CreatedAt
+                                FROM Customers;
                                 ORDER BY Name";
 
         var result = await connection.QueryAsync<CustomerSqlModel>(sql);
@@ -69,13 +74,16 @@ public class CustomerRepository(IDbConnectionFactory factory) : ICustomerReposit
 
     public async Task UpdateAsync(Domain.Customer customer, decimal AmountDebit = 0)
     {
+        var updateValue = (customer.LimitValue - AmountDebit).ToString(CultureInfo.InvariantCulture);
+
         using var connection = _factory.CreateConnection();
         const string sql = @" UPDATE Customers
                             SET
                                 Name = @Name,
                                 CPF = @CPF,
-                                LimitValue = @LimitValue - @AmountDebit
-                            WHERE Id = @Id";
+                                LimitValue = LimitValue - @AmountDebit
+                            WHERE Id = @Id
+                            AND LimitValue >= @AmountDebit;";
 
         await connection.ExecuteAsync(
             sql,
