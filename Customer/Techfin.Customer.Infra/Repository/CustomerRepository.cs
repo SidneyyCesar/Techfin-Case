@@ -125,10 +125,14 @@ public class CustomerRepository(IDbConnectionFactory factory) : ICustomerReposit
 
     private static Domain.Customer Map(CustomerSqlModel customer)
     {
-        return new Domain.Customer(
+        var result = new Domain.Customer(
             Guid.Parse(customer.Id),
             customer.Name,
             customer.CPF,
             customer.LimitValue);
+
+        result.CreatedAt = customer.CreatedAt;
+
+        return result;
     }
 }

@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using System.Security.Claims;
 using Techfin.Case.Application.DTOs.Requests;
 using Techfin.Case.Application.UseCases.Authentication;
 using Techfin.Case.Application.UseCases.RefreshToken;
@@ -41,17 +39,5 @@ public class AutenticacaoController(AuthUserHandler handler) : ControllerBase
             return Unauthorized(result);
 
         return Ok(result);
-    }
-
-    [Authorize]
-    [HttpGet("validar")]
-    public IActionResult Me()
-    {
-        return Ok(new
-        {
-            UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
-            Email = User.FindFirst(ClaimTypes.Email)?.Value,
-            Name = User.FindFirst(ClaimTypes.Name)?.Value
-        });
     }
 }
