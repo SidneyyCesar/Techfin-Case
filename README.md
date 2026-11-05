@@ -1,6 +1,6 @@
 Objetivo:<br />
 
-Desenvolver um software que irá realizar o fluxo de negócio responsável pela realização de ums transação bancária
+Desenvolver serviços para suportar um fluxo de negócio responsável pela realização de transações bancárias.
 
 
 Serviços Disponíveis:
