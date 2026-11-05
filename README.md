@@ -15,7 +15,8 @@ Serviços Disponíveis:
 ✅ API de Transações bancárias<br />
 
 Arquitetura do Projeto:<br /><br />
-<img width="1768" height="788" alt="Techfin_CaseTecnico" src="https://github.com/user-attachments/assets/0dc47b6b-2732-41e6-ba15-894289ae6fcb" />
+<img width="1768" height="574" alt="Diagrama sem nome-Cópia do Transaction Challenge Architecture" src="https://github.com/user-attachments/assets/471f4404-dfc7-4e3d-9414-3ae9cc47b7f8" />
+
 
 Desenvolvedor:<br />
 
