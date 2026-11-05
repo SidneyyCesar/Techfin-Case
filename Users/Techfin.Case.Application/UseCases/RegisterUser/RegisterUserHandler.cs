@@ -6,12 +6,18 @@ using Techfin.Case.Domain.Repositories;
 using Techfin.Shared;
 
 namespace Techfin.Case.Application.UseCases.RegisterUser;
+
+/// <summary>
+/// Classe responsável pela criação de novos usuários
+/// </summary>
+/// <param name="userRepository">repositório de usuários recebido via DI</param>
+/// <param name="passwordVerify">classe de criptografia de senha</param>
 public sealed class RegisterUserHandler(IUserRepository userRepository, IPasswordVerify passwordVerify)
 {
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IPasswordVerify _passwordVerify = passwordVerify;
 
-    public async Task<Result<Guid>> HandleAsync(RegisterUserCommand command)
+    public async Task<Result<Guid?>> HandleAsync(RegisterUserCommand command)
     {
         // Validação dos dados do request usando FluentValidation
         var validator = new RegisterUserValidator();
@@ -19,11 +25,10 @@ public sealed class RegisterUserHandler(IUserRepository userRepository, IPasswor
 
         if (!validationResult.IsValid)
         {
-            return new Result<Guid>
+            return new Result<Guid?>
             {
                 Success = false,
                 Message = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)),
-                Data = Guid.Empty,
                 StatusCode = HttpStatusCode.BadRequest
             };
         }
@@ -33,11 +38,10 @@ public sealed class RegisterUserHandler(IUserRepository userRepository, IPasswor
 
         if (exists)
         {
-            return new Result<Guid>
+            return new Result<Guid?>
             {
                 Success = false,
                 Message = "Usuário já existente",
-                Data = Guid.Empty,
                 StatusCode = HttpStatusCode.Conflict
             };
         }
@@ -53,7 +57,7 @@ public sealed class RegisterUserHandler(IUserRepository userRepository, IPasswor
 
         await _userRepository.AddAsync(user);
 
-        return new Result<Guid>
+        return new Result<Guid?>
         {
             Success = true,
             StatusCode = HttpStatusCode.OK,

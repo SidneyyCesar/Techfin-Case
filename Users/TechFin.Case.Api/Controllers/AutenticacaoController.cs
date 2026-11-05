@@ -24,12 +24,12 @@ public class AutenticacaoController(AuthUserHandler handler) : ControllerBase
         if (!result.Success)
         {
             if (result.StatusCode == HttpStatusCode.Unauthorized)
-                return Unauthorized(result.Message);
+                return Unauthorized(result);
 
             return BadRequest(result);
         }
 
-        return Ok(result.Data);
+        return Ok(result);
     }
 
     [HttpPost("refresh")]
@@ -40,11 +40,11 @@ public class AutenticacaoController(AuthUserHandler handler) : ControllerBase
         if (!result.Success)
             return Unauthorized(result);
 
-        return Ok(result.Data);
+        return Ok(result);
     }
 
     [Authorize]
-    [HttpGet("v")]
+    [HttpGet("validar")]
     public IActionResult Me()
     {
         return Ok(new

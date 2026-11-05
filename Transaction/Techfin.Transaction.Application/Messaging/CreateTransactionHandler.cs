@@ -8,14 +8,20 @@ using Techfin.Transaction.Infra;
 
 namespace Techfin.Transaction.Application.Messaging;
 
-public sealed class CreateTransactionHandler(ITransactionRepository repository, IMessagePublisher publisher)
+/// <summary>
+/// A criação de uma transação funciona de maneira atomica, ou seja, se algum dos serviços estiver indisponível, a transação não será criada.
+/// </summary>
+/// <param name="repository">repositório de transações recebido via DI</param>
+/// <param name="publisher">classe que encapsula a integração com RabbitMQ</param>
+/// <param name="httpClient">Serviço http que será utilizado para consulta na API de clientes</param>
+public sealed class CreateTransactionHandler(ITransactionRepository repository, IMessagePublisher publisher, HttpClient httpClient)
 {
     private readonly ITransactionRepository _repository = repository;
     private readonly IMessagePublisher _publisher = publisher;
+    private readonly HttpClient _httpClient = httpClient;
 
     public async Task<Result<CreateTransactionResponse>> HandleAsync(CreateTransactionCommand command)
     {
-        // Validação completa da requisição, dados, disponibilidade dos serviços e idempotência
         var validation = await RequestValidation(command);
 
         if (!validation.Success)
@@ -23,10 +29,8 @@ public sealed class CreateTransactionHandler(ITransactionRepository repository, 
 
         var transaction = new Domain.Transaction(command.CustomerId, command.Amount, command.TransactionKey);
 
-        // Persistencia da transação
         await _repository.AddAsync(transaction);
 
-        // Publicação do evento na fila
         await _publisher.PublishAsync(
             new TransactionCreatedEvent
             {
@@ -49,6 +53,8 @@ public sealed class CreateTransactionHandler(ITransactionRepository repository, 
             }
         };
     }
+
+    #region Validação de Requisição
 
     private async Task<Result<CreateTransactionResponse>> RequestValidation(CreateTransactionCommand command)
     {
@@ -108,47 +114,61 @@ public sealed class CreateTransactionHandler(ITransactionRepository repository, 
         return new Result<CreateTransactionResponse>() { Success = true };
     }
 
-    private static async Task<Result<CustomerResponse>> RequestCustomerApiAsync(CreateTransactionCommand command)
+    private async Task<Result<CustomerResponse>> RequestCustomerApiAsync(CreateTransactionCommand command)
     {
-        var httpClient = new HttpClient();
-        httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {command.Token}");
-
-        var response = await httpClient.GetAsync($"https://localhost:4000/clientes/{command.CustomerId}");
-
-        if (response.IsSuccessStatusCode)
+        try
         {
-            string jsonResponse = await response.Content.ReadAsStringAsync();
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {command.Token}");
 
-            using JsonDocument doc = JsonDocument.Parse(jsonResponse);
-            JsonElement dataElement = doc.RootElement.GetProperty("data");
+            var response = await _httpClient.GetAsync($"https://localhost:4000/clientes/{command.CustomerId}");
 
-            var customer = JsonSerializer.Deserialize<CustomerResponse>(dataElement.GetRawText(), new JsonSerializerOptions
+            if (response.IsSuccessStatusCode)
             {
-                PropertyNameCaseInsensitive = true
-            });
+                string jsonResponse = await response.Content.ReadAsStringAsync();
 
-            if (customer != null)
-            {
-                return new Result<CustomerResponse>()
+                using JsonDocument doc = JsonDocument.Parse(jsonResponse);
+                JsonElement dataElement = doc.RootElement.GetProperty("data");
+
+                var customer = JsonSerializer.Deserialize<CustomerResponse>(dataElement.GetRawText(), new JsonSerializerOptions()
                 {
-                    Success = true,
-                    StatusCode = HttpStatusCode.OK,
-                    Data = new CustomerResponse()
+                    PropertyNameCaseInsensitive = true
+                });
+
+                if (customer != null)
+                {
+                    return new Result<CustomerResponse>()
                     {
-                        Id = customer.Id,
-                        Nome = customer.Nome,
-                        ValorLimite = customer.ValorLimite
-                    }
-                };
+                        Success = true,
+                        StatusCode = HttpStatusCode.OK,
+                        Data = new CustomerResponse()
+                        {
+                            Id = customer.Id,
+                            Nome = customer.Nome,
+                            ValorLimite = customer.ValorLimite
+                        }
+                    };
+                }
             }
+
+            return new Result<CustomerResponse>()
+            {
+                Success = false,
+                StatusCode = HttpStatusCode.BadRequest,
+                Message = "Cliente vinculado a transação não encontrado."
+            };
+        }
+        catch
+        {
+            return new Result<CustomerResponse>()
+            {
+                Success = false,
+                StatusCode = HttpStatusCode.BadRequest,
+                Message = "O serviço de consulta a clientes esta temporariamente fora do ar."
+            };
         }
 
-        return new Result<CustomerResponse>()
-        {
-            Success = false,
-            StatusCode = HttpStatusCode.BadRequest,
-            Message = "Cliente vinculado a transação não encontrado."
-        };
-
     }
+
+    #endregion
 }

@@ -12,15 +12,6 @@ public class CustomerUpdateRequestValidator : AbstractValidator<CustomerUpdateRe
             .WithMessage("O Payload não contêm um ID releacionado ao cliente.")
             .MaximumLength(150);
 
-        RuleFor(x => x.Nome)
-            .NotEmpty()
-            .WithMessage("Nome do cliente não informado.")
-            .MaximumLength(150);
-
-        RuleFor(x => x.CPF)
-            .NotEmpty()
-            .WithMessage("Document CPF não informado.");
-
         RuleFor(x => x.ValorLimite)
             .GreaterThanOrEqualTo(0)
             .WithMessage("O valor do limite não pode ser negativo.");

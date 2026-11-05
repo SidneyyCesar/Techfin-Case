@@ -124,7 +124,6 @@ public sealed class CustomerService(ICustomerRepository repository, IMemoryCache
 
     public async Task<Result<CustomerResponse>> UpdateAsync(CustomerUpdateRequest command)
     {
-        // Validação dos dados do request usando FluentValidation
         var validator = new CustomerUpdateRequestValidator();
         var validationResult = await validator!.ValidateAsync(command);
 
@@ -148,9 +147,9 @@ public sealed class CustomerService(ICustomerRepository repository, IMemoryCache
             };
 
         var customer = new Domain.Customer(Guid.Parse(command.Id),
-                                            command.Nome,
-                                            command.CPF,
-                                            command.ValorLimite);
+                                            !string.IsNullOrEmpty(command.Nome) ? command.Nome : existsCustomer.Name,
+                                            !string.IsNullOrEmpty(command.CPF) ? command.CPF : existsCustomer.CPF,
+                                            command.ValorLimite > 0 ? command.ValorLimite : existsCustomer.LimitValue);
 
         await _repository.UpdateAsync(customer);
 
@@ -162,8 +161,8 @@ public sealed class CustomerService(ICustomerRepository repository, IMemoryCache
             Data = new CustomerResponse()
             {
                 Id = Guid.Parse(command.Id),
-                CPF = command.CPF,
-                Nome = command.Nome,
+                CPF = !string.IsNullOrEmpty(command.CPF) ? command.CPF : existsCustomer.CPF,
+                Nome = !string.IsNullOrEmpty(command.Nome) ? command.Nome : existsCustomer.Name,
                 ValorLimite = command.ValorLimite
             }
         };

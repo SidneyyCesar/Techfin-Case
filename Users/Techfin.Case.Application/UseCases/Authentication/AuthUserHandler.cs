@@ -8,15 +8,21 @@ using Techfin.Case.Domain.Repositories;
 using Techfin.Shared;
 
 namespace Techfin.Case.Application.UseCases.Authentication;
-public sealed class AuthUserHandler(IUserRepository repository, IPasswordVerify passwordHasher, IJwtProvider jwtProvider)
+
+/// <summary>
+/// Classe responsável pela geração de tokens JWT para autenticação de usuários
+/// </summary>
+/// <param name="userRepository">repositório de usuáros recebido via DI</param>
+/// <param name="passwordVerify">classe de criptografia de senha</param>
+/// <param name="jwtProvider">classe responsável pela geração de tokens</param>
+public sealed class AuthUserHandler(IUserRepository repository, IPasswordVerify passwordVerify, IJwtProvider jwtProvider)
 {
     private readonly IUserRepository _repository = repository;
-    private readonly IPasswordVerify _passwordVerify = passwordHasher;
+    private readonly IPasswordVerify _passwordVerify = passwordVerify;
     private readonly IJwtProvider _jwtProvider = jwtProvider;
 
     public async Task<Result<LoginResponse>> HandleAsync(AuthUserCommand command)
     {
-        // Validação dos dados do request usando FluentValidation
         var validator = new LoginRequestValidator();
         var validationResult = await validator!.ValidateAsync(command);
 
@@ -62,7 +68,7 @@ public sealed class AuthUserHandler(IUserRepository repository, IPasswordVerify 
             Data = new LoginResponse
             {
                 AccessToken = token,
-                ExpiresAt = DateTime.UtcNow.AddHours(1)
+                ExpiresAt = DateTime.Now.AddHours(1)
             }
         };
     }
