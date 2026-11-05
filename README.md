@@ -65,7 +65,22 @@ BackgroundService:
 
 Realização de uma Transação:
 
+A arquitetura deste projeto foi pensada para que cada serviço seja executado de forma apartada.
+Desta forma, sugiro que, para a execução local, seja feita a configuração abaixo para que as 3 APIs sejam executadas simultaneamente:
+
+Visual Studio:
+
+<img width="1237" height="862" alt="image" src="https://github.com/user-attachments/assets/3c2c24c9-1641-4ac3-af1f-ee68c5204517" />
+
+APIs em Funcionamento:
+
+<img width="2545" height="746" alt="image" src="https://github.com/user-attachments/assets/5caf6b43-67d5-4404-adbc-c9b7ed711a4e" />
+<br />
+
+Executando uma transação Completa:
+
 Cadastro de Usuário:
+
 
 <img width="1992" height="274" alt="image" src="https://github.com/user-attachments/assets/b05bb091-b68c-45fe-a84d-230792a1b37c" />
 
