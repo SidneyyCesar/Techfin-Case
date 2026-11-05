@@ -10,7 +10,6 @@ using Techfin.Transaction.Infra;
 using Techfin.Transaction.Infra.Messaging;
 using Techfin.Transaction.Infra.Repositories;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -24,6 +23,8 @@ builder.Services.AddSingleton<IDbConnectionFactory, SqliteConnectionFactory>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 
 builder.Services.AddScoped<CreateTransactionHandler>();
+
+builder.Services.AddSingleton<HttpClient>();
 
 builder.Services.AddScoped<IMessagePublisher, RabbitMqPublisher>();
 

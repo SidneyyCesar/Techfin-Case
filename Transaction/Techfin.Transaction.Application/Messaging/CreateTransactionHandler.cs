@@ -8,16 +8,18 @@ using Techfin.Transaction.Infra;
 
 namespace Techfin.Transaction.Application.Messaging;
 
+/// <summary>
+/// A criação de uma transação funciona de maneira atomica, ou seja, se algum dos serviços estiver indisponível, a transação não será criada.
+/// </summary>
+/// <param name="repository">repositório de transações recebido via DI</param>
+/// <param name="publisher">classe que encapsula a integração com RabbitMQ</param>
+/// <param name="httpClient">Serviço http que será utilizado para consulta na API de clientes</param>
 public sealed class CreateTransactionHandler(ITransactionRepository repository, IMessagePublisher publisher, HttpClient httpClient)
 {
     private readonly ITransactionRepository _repository = repository;
     private readonly IMessagePublisher _publisher = publisher;
     private readonly HttpClient _httpClient = httpClient;
 
-    /// <summary>
-    /// A criação de uma transação funciona de maneira atomica, ou seja, se algum dos serviços estiver indisponível, a transação não será criada.
-    /// </summary>
-    /// <param name="command">dados da transação</param>
     public async Task<Result<CreateTransactionResponse>> HandleAsync(CreateTransactionCommand command)
     {
         var validation = await RequestValidation(command);
@@ -114,41 +116,57 @@ public sealed class CreateTransactionHandler(ITransactionRepository repository, 
 
     private async Task<Result<CustomerResponse>> RequestCustomerApiAsync(CreateTransactionCommand command)
     {
-        _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {command.Token}");
-
-        var response = await _httpClient.GetAsync($"https://localhost:4000/clientes/{command.CustomerId}");
-
-        if (response.IsSuccessStatusCode)
+        try
         {
-            string jsonResponse = await response.Content.ReadAsStringAsync();
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {command.Token}");
 
-            using JsonDocument doc = JsonDocument.Parse(jsonResponse);
-            JsonElement dataElement = doc.RootElement.GetProperty("data");
+            var response = await _httpClient.GetAsync($"https://localhost:4000/clientes/{command.CustomerId}");
 
-            var customer = JsonSerializer.Deserialize<CustomerResponse>(dataElement.GetRawText());
-
-            if (customer != null)
+            if (response.IsSuccessStatusCode)
             {
-                return new Result<CustomerResponse>()
-                {
-                    Success = true,
-                    StatusCode = HttpStatusCode.OK,
-                    Data = new CustomerResponse()
-                    {
-                        Id = customer.Id,
-                        Nome = customer.Nome,
-                        ValorLimite = customer.ValorLimite
-                    }
-                };
-            }
-        }
+                string jsonResponse = await response.Content.ReadAsStringAsync();
 
-        return new Result<CustomerResponse>()
+                using JsonDocument doc = JsonDocument.Parse(jsonResponse);
+                JsonElement dataElement = doc.RootElement.GetProperty("data");
+
+                var customer = JsonSerializer.Deserialize<CustomerResponse>(dataElement.GetRawText(), new JsonSerializerOptions()
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                if (customer != null)
+                {
+                    return new Result<CustomerResponse>()
+                    {
+                        Success = true,
+                        StatusCode = HttpStatusCode.OK,
+                        Data = new CustomerResponse()
+                        {
+                            Id = customer.Id,
+                            Nome = customer.Nome,
+                            ValorLimite = customer.ValorLimite
+                        }
+                    };
+                }
+            }
+
+            return new Result<CustomerResponse>()
+            {
+                Success = false,
+                StatusCode = HttpStatusCode.BadRequest,
+                Message = "Cliente vinculado a transação não encontrado."
+            };
+        }
+        catch
         {
-            Success = false,
-            StatusCode = HttpStatusCode.BadRequest,
-            Message = "Cliente vinculado a transação não encontrado."
-        };
+            return new Result<CustomerResponse>()
+            {
+                Success = false,
+                StatusCode = HttpStatusCode.BadRequest,
+                Message = "O serviço de consulta a clientes esta temporariamente fora do ar."
+            };
+        }
 
     }
 
