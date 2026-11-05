@@ -19,7 +19,7 @@ public class CustomerRepository(IDbConnectionFactory factory) : ICustomerReposit
                                     CPF,
                                     CAST(LimitValue AS REAL) AS LimitValue,
                                     CreatedAt
-                                FROM Customers;
+                                FROM Customers
                                 ORDER BY Name";
 
         var result = await connection.QueryAsync<CustomerSqlModel>(sql);
