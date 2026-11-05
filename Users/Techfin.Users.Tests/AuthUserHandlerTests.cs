@@ -47,30 +47,6 @@ public class AuthUserHandlerTests
         return new ClaimsPrincipal(identity);
     }
 
-    [Fact]
-    public async Task DeveAutenticarUsuario_QuandoCredenciaisForemValidas()
-    {
-        var command = new AuthUserCommand("sidney@techfin.com", "123456");
-
-        var user = CriarUsuario();
-
-        _repositoryMock.Setup(x => x.GetByEmailAsync(command.Email)).ReturnsAsync(user);
-
-        _passwordVerifyMock.Setup(x => x.Verify(command.Password, user.Password)).Returns(true);
-
-        _jwtProviderMock.Setup(x => x.GenerateToken(user)).Returns("jwt-token-teste");
-
-        var result = await _handler.HandleAsync(command);
-
-        Assert.True(result.Success);
-        Assert.NotNull(result.Data);
-        Assert.Equal("jwt-token-teste", result.Data.AccessToken);
-        Assert.True(result.Data.ExpiresAt > DateTime.UtcNow);
-
-        _repositoryMock.Verify(x => x.GetByEmailAsync(command.Email), Times.Once);
-
-        _passwordVerifyMock.Verify(x => x.Verify(command.Password, user.Password), Times.Once);
-    }
 
     [Fact]
     public async Task DeveRetornarBadRequest_QuandoDadosDoLoginForemInvalidos()

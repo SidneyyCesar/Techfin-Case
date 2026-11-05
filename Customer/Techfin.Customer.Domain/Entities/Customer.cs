@@ -26,5 +26,5 @@ public class Customer
     public string Name { get; private set; }
     public string CPF { get; private set; }
     public decimal LimitValue { get; set; }
-    public DateTime CreatedAt { get; private set; }
+    public DateTime CreatedAt { get; set; }
 }
